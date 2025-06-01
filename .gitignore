@@ -1,32 +1,54 @@
-# Node modules
+# Dependencies
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Build output
 .next/
 dist/
 build/
 coverage/
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS files
-.DS_Store
-Thumbs.db
+out/
 
 # Environment variables
 .env
 .env.*
+!.env.example
 
-# Misc
-*.local
+# Logs
 *.log
+logs/
 
-# VSCode
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# Production database and secrets
+# Database
 *.sqlite
+*.db
+
+# Certificates
 *.pem
+*.key
+*.crt
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Temporary files
+tmp/
+temp/

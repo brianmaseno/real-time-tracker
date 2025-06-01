@@ -9,7 +9,10 @@
     "lint": "next lint",
     "server": "node server/index.js",
     "dev:server": "nodemon server/index.js",
-    "dev:all": "concurrently \"npm run dev\" \"npm run dev:server\""
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
+    "build:frontend": "next build",
+    "start:frontend": "next start",
+    "start:backend": "node server/index.js"
   },
   "description": "Real-time location tracker for multivendor delivery platform",
   "author": "Real-Time Tracker Team",
