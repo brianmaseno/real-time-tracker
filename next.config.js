@@ -3,11 +3,6 @@ const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   output: 'standalone',
-  experimental: {
-    esmExternals: false,
-  },
-  // Force dynamic rendering for all pages to prevent SSR issues
-  generateStaticParams: false,
   
   webpack: (config, { isServer }) => {
     config.resolve.fallback = {
