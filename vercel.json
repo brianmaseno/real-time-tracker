@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "framework": "nextjs",
   "builds": [
     {
       "src": "package.json",
@@ -16,7 +17,9 @@
     "NEXT_PUBLIC_API_URL": "@api_url",
     "NEXT_PUBLIC_SOCKET_URL": "@socket_url"
   },
-  "installCommand": "npm install",
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next"
+  "functions": {
+    "src/pages/**/*.js": {
+      "memory": 1024
+    }
+  }
 }
