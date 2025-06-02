@@ -258,7 +258,7 @@ const PlaceOrder: React.FC = () => {
               <div className="mt-2 text-sm text-blue-700">
                 <ul className="list-disc list-inside space-y-1">
                   <li>Your order will be assigned to a delivery partner</li>
-                  <li>You'll receive real-time tracking updates</li>
+                  <li>You&apos;ll receive real-time tracking updates</li>
                   <li>Track your order using the provided link</li>
                   <li>Estimated delivery time: 30-45 minutes</li>
                 </ul>
