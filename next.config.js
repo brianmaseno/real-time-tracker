@@ -2,7 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-  output: 'standalone',
   
   webpack: (config, { isServer }) => {
     config.resolve.fallback = {
@@ -26,32 +25,10 @@ const nextConfig = {
       {
         source: '/api/socket',
         destination: process.env.NODE_ENV === 'production' 
-          ? `${process.env.BACKEND_URL || 'https://your-backend.onrender.com'}/socket.io/`
+          ? `${process.env.NEXT_PUBLIC_API_URL || 'https://realtime-tracker-backend.onrender.com'}/socket.io/`
           : 'http://localhost:5001/socket.io/',
       },
     ];
-  },
-  
-  // Disable automatic static optimization to force all pages to be server-rendered
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate',
-          },
-        ],
-      },
-    ];
-  },
-  
-  // Disable static export
-  trailingSlash: false,
-  
-  env: {
-    CUSTOM_KEY: 'my-value',
   },
 }
 
