@@ -31,8 +31,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // Set mounted state
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Initialize auth state
   useEffect(() => {
+    if (!mounted) return;
+    
     const initAuth = async () => {
       try {
         const storedToken = localStorage.getItem('auth_token');
@@ -42,11 +51,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setUser(response.data as User);
             setToken(storedToken);
             
-            // Join socket room
-            socketManager.joinRoom({
-              userId: (response.data as User)._id,
-              role: (response.data as User).role,
-            });
+            // Join socket room only on client side
+            if (typeof window !== 'undefined') {
+              socketManager.joinRoom({
+                userId: (response.data as User)._id,
+                role: (response.data as User).role,
+              });
+            }
           } else {
             // Invalid token
             localStorage.removeItem('auth_token');
@@ -60,10 +71,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } finally {
         setLoading(false);
       }
-    };
-
-    initAuth();
-  }, []);  const login = async (email: string, password: string) => {
+    };    initAuth();
+  }, [mounted]);const login = async (email: string, password: string) => {
     try {
       const response = await api.post('/api/auth/login', { email, password });
       if (response.success && response.data) {
@@ -72,12 +81,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setToken(authToken);
         api.setToken(authToken);
         localStorage.setItem('auth_token', authToken);
-        
-        // Join socket room
-        socketManager.joinRoom({
-          userId: userData._id,
-          role: userData.role,
-        });
+          // Join socket room only on client side
+        if (typeof window !== 'undefined') {
+          socketManager.joinRoom({
+            userId: userData._id,
+            role: userData.role,
+          });
+        }
       } else {
         throw new Error((response as any).message || 'Login failed');
       }
@@ -95,12 +105,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setToken(authToken);
         api.setToken(authToken);
         localStorage.setItem('auth_token', authToken);
-        
-        // Join socket room
-        socketManager.joinRoom({
-          userId: newUser._id,
-          role: newUser.role,
-        });
+          // Join socket room only on client side
+        if (typeof window !== 'undefined') {
+          socketManager.joinRoom({
+            userId: newUser._id,
+            role: newUser.role,
+          });
+        }
       } else {
         throw new Error((response as any).message || 'Registration failed');
       }

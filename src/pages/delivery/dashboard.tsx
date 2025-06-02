@@ -15,9 +15,14 @@ const DeliveryPartnerDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [locationInterval, setLocationInterval] = useState<NodeJS.Timeout | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (user && user.role === 'delivery_partner') {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && user && user.role === 'delivery_partner') {
       fetchOrders();
       setupSocketListeners();
       getUserLocation();
@@ -28,7 +33,7 @@ const DeliveryPartnerDashboard: React.FC = () => {
         clearInterval(locationInterval);
       }
     };
-  }, [user]);
+  }, [mounted, user]);
   const fetchOrders = async () => {
     try {
       const response: ApiResponse<Order[]> = await api.get('/api/orders/my-orders');
@@ -45,9 +50,8 @@ const DeliveryPartnerDashboard: React.FC = () => {
       setLoading(false);
     }
   };
-
   const setupSocketListeners = () => {
-    if (user) {
+    if (mounted && user && typeof window !== 'undefined') {
       socketManager.connect();
       socketManager.joinRoom({ userId: user._id, role: 'delivery_partner' });
 
@@ -211,6 +215,9 @@ const DeliveryPartnerDashboard: React.FC = () => {
       default: return null;
     }
   };
+  if (!mounted) {
+    return null; // Prevent SSR issues
+  }
 
   if (loading) {
     return (
@@ -370,3 +377,10 @@ const DeliveryPartnerDashboard: React.FC = () => {
 };
 
 export default DeliveryPartnerDashboard;
+
+// Force server-side rendering to prevent static generation issues
+export async function getServerSideProps() {
+  return {
+    props: {}, // will be passed to the page component as props
+  };
+}

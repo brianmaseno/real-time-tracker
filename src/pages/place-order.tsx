@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
@@ -18,6 +18,20 @@ const PlaceOrder: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && user) {
+      setFormData(prev => ({
+        ...prev,
+        customerName: user.name || ''
+      }));
+    }
+  }, [mounted, user]);
 
   const validateForm = () => {
     if (!formData.pickupAddress.trim()) {
@@ -81,8 +95,11 @@ const PlaceOrder: React.FC = () => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    });
-  };
+    });  };
+
+  if (!mounted) {
+    return null; // Prevent SSR issues
+  }
 
   return (
     <Layout>
@@ -255,3 +272,10 @@ const PlaceOrder: React.FC = () => {
 };
 
 export default PlaceOrder;
+
+// Force server-side rendering to prevent static generation issues
+export async function getServerSideProps() {
+  return {
+    props: {}, // will be passed to the page component as props
+  };
+}

@@ -23,13 +23,18 @@ const TrackOrder: React.FC = () => {
   const [deliveryLocation, setDeliveryLocation] = useState<{lat: number, lng: number} | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (orderId && typeof orderId === 'string') {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && orderId && typeof orderId === 'string') {
       fetchOrder();
       setupSocketListeners();
     }
-  }, [orderId]);
+  }, [mounted, orderId]);
   const fetchOrder = async () => {
     try {
       const response: ApiResponse<Order> = await api.get(`/api/orders/${orderId}`);
@@ -62,9 +67,8 @@ const TrackOrder: React.FC = () => {
     } catch (err) {
       console.error('Failed to fetch location:', err);
     }
-  };
-  const setupSocketListeners = () => {
-    if (orderId) {
+  };  const setupSocketListeners = () => {
+    if (mounted && orderId && typeof window !== 'undefined') {
       socketManager.connect();
       socketManager.joinRoom({ 
         userId: 'customer', 
@@ -132,6 +136,9 @@ const TrackOrder: React.FC = () => {
         return null;
     }
   };
+  if (!mounted) {
+    return null; // Prevent SSR issues
+  }
 
   if (loading) {
     return (
@@ -326,3 +333,10 @@ const TrackOrder: React.FC = () => {
 };
 
 export default TrackOrder;
+
+// Force server-side rendering to prevent static generation issues
+export async function getServerSideProps() {
+  return {
+    props: {}, // will be passed to the page component as props
+  };
+}

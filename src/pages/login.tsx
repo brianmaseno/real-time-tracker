@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,12 +11,17 @@ const LoginPage: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [mounted, setMounted] = useState(false);
 
   const { login, user } = useAuth();
   const router = useRouter();
 
-  React.useEffect(() => {
-    if (user) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && user) {
       // Redirect based on user role
       if (user.role === 'vendor') {
         router.push('/vendor/dashboard');
@@ -26,7 +31,7 @@ const LoginPage: React.FC = () => {
         router.push('/');
       }
     }
-  }, [user, router]);
+  }, [mounted, user, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -46,8 +51,11 @@ const LoginPage: React.FC = () => {
       setError(error.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
-    }
-  };
+    }  };
+
+  if (!mounted) {
+    return null; // Prevent SSR issues
+  }
 
   return (
     <Layout requireAuth={false}>
@@ -141,3 +149,10 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+
+// Force server-side rendering to prevent static generation issues
+export async function getServerSideProps() {
+  return {
+    props: {}, // will be passed to the page component as props
+  };
+}

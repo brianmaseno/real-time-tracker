@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/Layout';
 import Link from 'next/link';
 
 const Home: React.FC = () => {
   const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getRoleDashboard = () => {
     switch (user?.role) {
@@ -80,8 +85,11 @@ const Home: React.FC = () => {
       description: 'Place delivery orders and track them in real-time.',
       color: 'bg-purple-600',
       link: '/place-order'
-    }
-  ];
+    }  ];
+
+  if (!mounted) {
+    return null; // Prevent SSR issues
+  }
 
   return (
     <Layout>
@@ -285,3 +293,10 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
+// Force server-side rendering to prevent static generation issues
+export async function getServerSideProps() {
+  return {
+    props: {}, // will be passed to the page component as props
+  };
+}

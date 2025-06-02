@@ -11,14 +11,19 @@ const VendorDashboard: React.FC = () => {
   const [deliveryPartners, setDeliveryPartners] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (user && user.role === 'vendor') {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && user && user.role === 'vendor') {
       fetchOrders();
       fetchDeliveryPartners();
       setupSocketListeners();
     }
-  }, [user]);
+  }, [mounted, user]);
   const fetchOrders = async () => {
     try {
       const response: ApiResponse<Order[]> = await api.get('/api/orders');
@@ -42,9 +47,8 @@ const VendorDashboard: React.FC = () => {
       setLoading(false);
     }
   };
-
   const setupSocketListeners = () => {
-    if (user) {
+    if (mounted && user && typeof window !== 'undefined') {
       socketManager.connect();
       socketManager.joinRoom({ userId: user._id, role: 'vendor' });
 
@@ -115,6 +119,9 @@ const VendorDashboard: React.FC = () => {
       setError('Failed to assign delivery partner');
     }
   };
+  if (!mounted) {
+    return null; // Prevent SSR issues
+  }
 
   if (loading) {
     return (
@@ -275,3 +282,10 @@ const VendorDashboard: React.FC = () => {
 };
 
 export default VendorDashboard;
+
+// Force server-side rendering to prevent static generation issues
+export async function getServerSideProps() {
+  return {
+    props: {}, // will be passed to the page component as props
+  };
+}

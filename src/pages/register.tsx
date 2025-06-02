@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,24 +21,31 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [vendors, setVendors] = useState<any[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   const { register, user } = useAuth();
   const router = useRouter();
 
-  React.useEffect(() => {
-    if (user) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && user) {
       router.push('/');
     }
-  }, [user, router]);
+  }, [mounted, user, router]);
 
-  React.useEffect(() => {
-    // For demo purposes, we'll create some sample vendors
-    setVendors([
-      { _id: '507f1f77bcf86cd799439011', businessName: 'QuickEats Restaurant' },
-      { _id: '507f1f77bcf86cd799439012', businessName: 'FastMart Grocery' },
-      { _id: '507f1f77bcf86cd799439013', businessName: 'MediCare Pharmacy' },
-    ]);
-  }, []);
+  useEffect(() => {
+    if (mounted) {
+      // For demo purposes, we'll create some sample vendors
+      setVendors([
+        { _id: '507f1f77bcf86cd799439011', businessName: 'QuickEats Restaurant' },
+        { _id: '507f1f77bcf86cd799439012', businessName: 'FastMart Grocery' },
+        { _id: '507f1f77bcf86cd799439013', businessName: 'MediCare Pharmacy' },
+      ]);
+    }
+  }, [mounted]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({
@@ -88,8 +95,11 @@ const RegisterPage: React.FC = () => {
       setError(error.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
-    }
-  };
+    }  };
+
+  if (!mounted) {
+    return null; // Prevent SSR issues
+  }
 
   return (
     <Layout requireAuth={false}>
@@ -332,3 +342,10 @@ const RegisterPage: React.FC = () => {
 };
 
 export default RegisterPage;
+
+// Force server-side rendering to prevent static generation issues
+export async function getServerSideProps() {
+  return {
+    props: {}, // will be passed to the page component as props
+  };
+}
