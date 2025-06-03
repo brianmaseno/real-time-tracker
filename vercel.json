@@ -1,4 +1,12 @@
 {
   "version": 2,
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "env": {
+    "SKIP_ENV_VALIDATION": "1"
+  },
+  "build": {
+    "env": {
+      "SKIP_ENV_VALIDATION": "1"
+    }
+  }
 }

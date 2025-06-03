@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   
-  // Temporarily ignore build errors for deployment
+  // Disable TypeScript and ESLint checks during build for deployment
   typescript: {
     ignoreBuildErrors: true,
   },
